@@ -9,6 +9,8 @@ class TileReader:
 		self.nlp = spacy.load('en')
 		self.doc = None
 		self.vocab_tags = []
+		self.freqs = {}
+		self.freqs_as_probs = {}
 
 	def set_vocab_tags(self, tag_list):
 		"""
@@ -41,6 +43,10 @@ class TileReader:
 			tok_count += 1
 		self.vocab = list(self.vocab)
 		self.freqs = freqs
+		freqs_as_probs = {}
+		for item in freqs:
+			freqs_as_probs[item] = float(freqs[item])/len(self.doc)
+		self.freqs_as_probs = freqs_as_probs
 
 	def get_blocks(self, k, as_text=False):
 		"""
@@ -57,9 +63,24 @@ class TileReader:
 		for index, sent in enumerate(self.sentences[:len(self.sentences)-k]):
 			if index+k+k <= len(self.sentences):
 				if as_text:
-					yield (self.sentences[index:index+k],self.sentences[index+k:])
+					yield (self.sentences[index:index+k],self.sentences[index+k:index+k*2])
 				else:
-					yield (list((sent) for sent in self.sentences[index:index + k]), list((sent) for sent in self.sentences[index + k:]))
+					yield (list((sent) for sent in self.sentences[index:index + k]), list((sent) for sent in self.sentences[index + k:index+k*2]))
+
+
+	def get_freqs(self, as_probability=False):
+		"""
+		Get a dictionary of lemma frequencies in the entire document.
+		Useful for TF based weighting approaches.
+
+		:param: as_probability: boolean, whether to return dictionary of counts or fractions of document length
+		:return: Dictionary from lemmas in entire document to absolute fr
+		"""
+		if as_probability:
+			return self.freqs_as_probs
+		else:
+			return self.freqs
+
 
 def demo():
 	reader = TileReader()
@@ -69,8 +90,8 @@ def demo():
 	blocks = reader.get_blocks(3,True)
 
 	for blockA, blockB in blocks:
-		#print str(blockA) + "\n----\n" + str(blockB) +"\n\n"
-		print blockA[0][0]
+		print str(blockA) + "\n----\n" + str(blockB) +"\n\n"
+		#print blockA[0][0]
 
 
 if __name__ == "__main__":
