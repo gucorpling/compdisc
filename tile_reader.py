@@ -1,7 +1,6 @@
 import spacy
-import re, sys
-import numpy as np
-from collections import OrderedDict, defaultdict
+import re
+from collections import defaultdict
 
 class TileReader:
 
