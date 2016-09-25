@@ -73,7 +73,6 @@ def boundarize(depth_scores, type='liberal'):
     """
     average = numpy.mean([depth_score for i, depth_score in depth_scores])
     deviation = numpy.std([depth_score for i, depth_score in depth_scores])
-    print average - (deviation/2.0)
 
     boundaries = []
     if type == 'liberal':
