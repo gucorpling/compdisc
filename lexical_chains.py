@@ -26,13 +26,13 @@ class LexicalChains(object):
         :param pos_filter: (tuple) spacy pos_ labels to exclude (i.e. a pos-based stoplist)
         :return: void
         """
-        self.sentences = self.__preproc(sents, pos_filter)
-        self.actives = self.__get_actives(self.sentences, window)
+        self.sentences = self._preproc(sents, pos_filter)
+        self.actives = self._get_actives(self.sentences, window)
         self.gap_scores = [len(self.actives[k]) for k in self.actives.keys()]
-        self.boundary_vector = self.__get_boundaries(self.gap_scores, boundary_type)
+        self.boundary_vector = self._get_boundaries(self.gap_scores, boundary_type)
 
     @staticmethod
-    def __preproc(sentences, pos_filter):
+    def _preproc(sentences, pos_filter):
         """
         Filters out stop POSs and lemmatizes sentences
         :param sentences: list of tokenized sentences in doc
@@ -44,7 +44,7 @@ class LexicalChains(object):
         return lemmatized
 
     @staticmethod
-    def __get_actives(sents, window):
+    def _get_actives(sents, window):
         """
         Get active lexical chains for each gap between sentences
         :param sents: list of tokenized sentences
@@ -79,7 +79,7 @@ class LexicalChains(object):
         return actives
 
     @staticmethod
-    def __get_boundaries(scores, boundary_type):
+    def _get_boundaries(scores, boundary_type):
         """
         Calculate boundaries from gap scores
         :param scores: list containing # of active chains across each sentence gap in doc
@@ -123,7 +123,8 @@ if __name__ == "__main__":
         'coron' : [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
         'athens' : [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
         'chatham' : [1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        'merida' : [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        'merida' : [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        'cuba' : [1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0]
     }
     gold = gold_boundaries[doc]
 

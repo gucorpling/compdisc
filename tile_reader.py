@@ -83,8 +83,10 @@ class TileReader:
 
 def demo():
 	reader = TileReader()
-	reader.read(r"c:\\uni\\teaching\\compdisc\\python\\mr_robot.txt")
 	reader.set_vocab_tags(["NOUN","PROPN"])
+	reader.read(r"c:\\uni\\teaching\\compdisc\\python\\compdisc.git\\GUM_voyage_coron_noheads.txt")
+
+
 
 	blocks = reader.get_blocks(3,True)
 
