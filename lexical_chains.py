@@ -26,10 +26,10 @@ class LexicalChains(object):
         :param pos_filter: (tuple) spacy pos_ labels to exclude (i.e. a pos-based stoplist)
         :return: void
         """
-        self.sentences = self.__preproc(sents, pos_filter)
-        self.actives = self.__get_actives(self.sentences, window)
+        self.sentences = self._preproc(sents, pos_filter)
+        self.actives = self._get_actives(self.sentences, window)
         self.gap_scores = [len(self.actives[k]) for k in self.actives.keys()]
-        self.boundary_vector = self.__get_boundaries(self.gap_scores, boundary_type)
+        self.boundary_vector = self._get_boundaries(self.gap_scores, boundary_type)
 
     @staticmethod
     def _preproc(sentences, pos_filter):
