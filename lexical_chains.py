@@ -32,7 +32,7 @@ class LexicalChains(object):
         self.boundary_vector = self.__get_boundaries(self.gap_scores, boundary_type)
 
     @staticmethod
-    def __preproc(sentences, pos_filter):
+    def _preproc(sentences, pos_filter):
         """
         Filters out stop POSs and lemmatizes sentences
         :param sentences: list of tokenized sentences in doc
@@ -44,7 +44,7 @@ class LexicalChains(object):
         return lemmatized
 
     @staticmethod
-    def __get_actives(sents, window):
+    def _get_actives(sents, window):
         """
         Get active lexical chains for each gap between sentences
         :param sents: list of tokenized sentences
@@ -79,7 +79,7 @@ class LexicalChains(object):
         return actives
 
     @staticmethod
-    def __get_boundaries(scores, boundary_type):
+    def _get_boundaries(scores, boundary_type):
         """
         Calculate boundaries from gap scores
         :param scores: list containing # of active chains across each sentence gap in doc
