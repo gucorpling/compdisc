@@ -150,7 +150,7 @@ if __name__ == "__main__":
             gold_vec = list((int(bit)) for bit in gold_line.split(","))
             predicted_vec = list((int(bit)) for bit in predicted_line.split(","))
 
-            print "Line " + str(index)
+            #print "Line " + str(index)
             print window_diff(gold_vec,predicted_vec,4)
     #print window_diff([1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1],
     #                  [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1], 4)
