@@ -139,8 +139,8 @@ if __name__ == "__main__":
     gold_file = options.gold
     predicted_file = options.predicted
 
-    gold = open(gold_file).read().replace("\r","").split("\n")
-    predicted = open(predicted_file).read().replace("\r","").split("\n")
+    gold = open(gold_file).read().replace("\r","").replace(" ","").split("\n")
+    predicted = open(predicted_file).read().replace("\r","").replace(" ","").split("\n")
 
 
     if options.score:
