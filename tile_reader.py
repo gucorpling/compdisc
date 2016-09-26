@@ -1,14 +1,15 @@
 import spacy
-import re, sys
-import numpy as np
-from collections import OrderedDict, defaultdict
+import re
+from collections import defaultdict
 
 class TileReader:
 
-	def __init__(self, vocab_tags=[]):
+	def __init__(self):
 		self.nlp = spacy.load('en')
 		self.doc = None
 		self.vocab_tags = []
+		self.freqs = {}
+		self.freqs_as_probs = {}
 
 	def set_vocab_tags(self, tag_list):
 		"""
@@ -41,6 +42,10 @@ class TileReader:
 			tok_count += 1
 		self.vocab = list(self.vocab)
 		self.freqs = freqs
+		freqs_as_probs = {}
+		for item in freqs:
+			freqs_as_probs[item] = float(freqs[item])/len(self.doc)
+		self.freqs_as_probs = freqs_as_probs
 
 	def get_blocks(self, k, as_text=False):
 		"""
@@ -57,20 +62,37 @@ class TileReader:
 		for index, sent in enumerate(self.sentences[:len(self.sentences)-k]):
 			if index+k+k <= len(self.sentences):
 				if as_text:
-					return (self.sentences[index:index+k],self.sentences[index+k:])
+					yield (self.sentences[index:index+k],self.sentences[index+k:index+k*2])
 				else:
-					return (list((sent) for sent in self.sentences[index:index + k]), list((sent) for sent in self.sentences[index + k:]))
+					yield (list((sent) for sent in self.sentences[index:index + k]), list((sent) for sent in self.sentences[index + k:index+k*2]))
+
+
+	def get_freqs(self, as_probability=False):
+		"""
+		Get a dictionary of lemma frequencies in the entire document.
+		Useful for TF based weighting approaches.
+
+		:param: as_probability: boolean, whether to return dictionary of counts or fractions of document length
+		:return: Dictionary from lemmas in entire document to absolute fr
+		"""
+		if as_probability:
+			return self.freqs_as_probs
+		else:
+			return self.freqs
+
 
 def demo():
 	reader = TileReader()
-	#reader.read(r"c:\\uni\\teaching\\compdisc\\python\\mr_robot.txt")
-	reader.read(r"C:\\Users\\owner\\OneDrive\\Documents\\44_25 LING 765 Discourse Modeling\\data\\robot.txt")
 	reader.set_vocab_tags(["NOUN","PROPN"])
-	blocks = reader.get_blocks(3,True)
-	for blockA, blockB in blocks:
-		#print str(blockA) + "\n----\n" + str(blockB) +"\n\n"
-		print blockA[0][0]
+	reader.read(r"c:\\uni\\teaching\\compdisc\\python\\compdisc.git\\GUM_voyage_coron_noheads.txt")
 
+
+
+	blocks = reader.get_blocks(3,True)
+
+	for blockA, blockB in blocks:
+		print str(blockA) + "\n----\n" + str(blockB) +"\n\n"
+		#print blockA[0][0]
 
 
 if __name__ == "__main__":
