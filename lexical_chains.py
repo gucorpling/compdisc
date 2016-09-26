@@ -17,7 +17,7 @@ class LexicalChains(object):
         self.gap_scores = []
         self.boundary_vector = []
 
-    def analyze(self, sents, window=4, pos_filter=('PUNCT', 'SYM', 'SPACE'), boundary_type='liberal'):
+    def analyze(self, sents, window=4, pos_filter=('PUNCT', 'SYM', 'SPACE', 'DET'), boundary_type='liberal'):
         """
         Set attributes
         :param sents: (list) spacy-analyzed sentences
@@ -117,11 +117,11 @@ if __name__ == "__main__":
     else:
         raise ValueError("unrecognized document: {}".format(doc))
 
-    # set gold
+    # set gold (hard coded for now because those in the boundaries file are not correct)
     gold_boundaries = {
         'robot' : [1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
         'coron' : [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-        'athens' : [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
+        'athens' : [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
         'chatham' : [1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
         'merida' : [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     }
