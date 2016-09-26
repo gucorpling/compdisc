@@ -21,15 +21,19 @@ class TileReader:
 		"""
 		self.vocab_tags = tag_list
 
-	def read(self, file_name):
+	def read(self, input_file, input_is_text=False):
 		"""
-		Reads a text file, runs NLP pipeline and collects vocabulary with frequencies
+		Reads a text file or string, runs NLP pipeline and collects vocabulary with frequencies
 
-		:param file_name:
+		:param input_file: either a file name, or if input_is_text=True, the text to analyze
+		:param input_is_text: boolean, whether the input is a file name (default) or already a text string
 		:return: void
 		"""
-		text = open(file_name).read()
-		text = re.sub(r'\n+', r'\n', text)
+		if input_is_text:
+			text = file_name
+		else:
+			text = open(input_file).read()
+			text = re.sub(r'\n+', r'\n', text)
 		self.doc = self.nlp(unicode(text.decode("utf8")))
 		self.sentences = list(self.doc.sents)
 		self.vocab = set([])
