@@ -93,24 +93,27 @@ class LexicalChains(object):
 
 
 # ======================================================================================================================
-# Run
+# Test if invoked directly
 # ======================================================================================================================
 if __name__ == "__main__":
     from decimal import Decimal
     import matplotlib.pyplot as plt
     import sys
+    import os
 
     # set doc
     try:
         doc = sys.argv[1]
+        docpath = sys.argv[2]
     except IndexError:
-        sys.exit("ERROR: Expected 1 arg, got {}\nUsage: (python) lexical_chains.py <docname>".format(len(sys.argv)-1))
+        sys.exit("ERROR: Expected 2 arg, got {}\nUsage: (python) lexical_chains.py <docname> <docpath>".format(
+            len(sys.argv)-1))
 
     # get path
     if doc in ('coron','athens','chatham','cuba','merida'):
-        doc_path = r"C:\Users\Sean\Documents\_University\2016_fall\comp_disc\compdisc\data\GUM_voyage_{}_noheads.txt".format(doc)
+        doc_path = os.path.join(docpath, "GUM_voyage_{}_noheads.txt".format(doc))
     elif doc == "robot":
-        doc_path = r"C:\Users\Sean\Documents\_University\2016_fall\comp_disc\compdisc\data\robot.txt"
+        doc_path = os.path.join(docpath, "robot.txt")
     else:
         raise ValueError("unrecognized document: {}".format(doc))
 
