@@ -126,3 +126,33 @@ def window_diff(predicted_tiles, gold_tiles, window_size):
             errors += 1
 
     return (1/(len(gold_tiles)-float(window_size))) * errors
+
+if __name__ == "__main__":
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser()
+    parser.add_argument("-s", "--score", action="store_true", dest="score", help="Score using WindowDiff")
+    parser.add_argument("gold", action="store", help="File containing comma separated gold binary vector in one line for each document")
+    parser.add_argument("predicted", action="store", help="File containing comma separated predicted binary vector in one line for each document")
+
+    options = parser.parse_args()
+    gold_file = options.gold
+    predicted_file = options.predicted
+
+    gold = open(gold_file).read().replace("\r","").split("\n")
+    predicted = open(predicted_file).read().replace("\r","").split("\n")
+
+
+    if options.score:
+        for index in range(len(gold)):
+            gold_line = gold[index]
+            predicted_line = predicted[index]
+            gold_vec = list((int(bit)) for bit in gold_line.split(","))
+            predicted_vec = list((int(bit)) for bit in predicted_line.split(","))
+
+            print "Line " + str(index)
+            print window_diff(gold_vec,predicted_vec,4)
+    #print window_diff([1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1],
+    #                  [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1], 4)
+    #print window_diff([1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1],
+    #                  [1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1], 4)
