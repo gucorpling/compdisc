@@ -108,29 +108,26 @@ if __name__ == "__main__":
         sys.exit("ERROR: Expected 1 arg, got {}\nUsage: (python) lexical_chains.py <docname> <docpath>".format(
             len(sys.argv)-1))
 
-    # get path
+    # get doc path
     path = os.path.dirname(__file__)
     if doc in ('coron','athens','chatham','cuba','merida'):
         doc_path = os.path.join(path, os.path.join("data", "GUM_voyage_{}_noheads.txt".format(doc)))
-    elif doc == "robot":
-        doc_path = os.path.join(path, "data/robot.txt")
     else:
         raise ValueError("unrecognized document: {}".format(doc))
 
-    # set gold (hard coded for now because those in the boundaries file are not correct)
-    gold_boundaries = {
-        'robot' : [1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-        'coron' : [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-        'athens' : [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
-        'chatham' : [1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        'merida' : [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        'cuba' : [1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0]
-    }
-    gold = gold_boundaries[doc]
+    # get gold
+    gold_file = os.path.join(path, os.path.join("data", "GUM_5_gold_tiles.txt"))
+    with open(gold_file) as f:
+        boundaries = [[int(x) for x in line.split(",")] for line in f.read().split()]
+    texts = ["athens", "chatham", "coron", "cuba", "merida"]
+    gold_dict = dict(zip(texts, boundaries))
+    gold = gold_dict[doc]
+
+
 
     # Instantiate TileReader
     reader = TileReader()
-    reader.read(doc_path)
+    reader.read(doc_path, newline_tokenization=True)
     sents = reader.sentences
 
     # Instantiate Lexical Chains
