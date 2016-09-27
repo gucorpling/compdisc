@@ -21,7 +21,7 @@ class TileReader:
 		"""
 		self.vocab_tags = tag_list
 
-	def read(self, input_file, input_is_text=False):
+	def read(self, input_file, newline_tokenization=False, input_is_text=False):
 		"""
 		Reads a text file or string, runs NLP pipeline and collects vocabulary with frequencies
 
@@ -34,8 +34,15 @@ class TileReader:
 		else:
 			text = open(input_file).read()
 			text = re.sub(r'\n+', r'\n', text)
-		self.doc = self.nlp(unicode(text.decode("utf8")))
-		self.sentences = list(self.doc.sents)
+
+		if newline_tokenization:
+			sent_docs = [self.nlp(unicode(sentence)) for sentence in text.decode("utf8").split("\n") if sentence]
+			self.sentences = [[tok for tok in sent] for sent in sent_docs]
+			self.doc = [tok for sent in self.sentences for tok in sent]
+		else:
+			self.doc = self.nlp(unicode(text.decode("utf8")))
+			self.sentences = list(self.doc.sents)
+
 		self.vocab = set([])
 		freqs = defaultdict(int)
 		tok_count = 0.0
