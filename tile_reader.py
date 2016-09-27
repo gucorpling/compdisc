@@ -30,7 +30,7 @@ class TileReader:
 		:return: void
 		"""
 		if input_is_text:
-			text = file_name
+			text = input_file
 		else:
 			text = open(input_file).read()
 			text = re.sub(r'\n+', r'\n', text)
