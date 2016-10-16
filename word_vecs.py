@@ -1,6 +1,7 @@
 import numpy
 import os
 from scipy.spatial.distance import cosine
+from vectors import Vectors
 
 from scoring import find_boundaries, smoothing, depth_scoring, boundarize, window_diff
 from tile_reader import TileReader
@@ -9,20 +10,28 @@ options = {'vocab_tags': ["NOUN", "PROPN"],
            'block_length': 3,
            'smoothing_window': None,  # int or None
            'smoothing_type': 'liberal',  # liberal or conservative
-           'out_type': 0}  # 0 or 1
+           'out_type': 0,  # 0 or 1
+           'vectors': None} # None or a Vectors object (None defaults to Levy & Goldberg 2014)
 
 
-def _vectorize(block, options):
+def _vectorize(block, vectors):
     """
     creates a vector representation of a block
     :param block:
     :return: numpy.array
     """
-    vector = numpy.zeros(300)
-    for sentence in block:
-        for token in sentence:
-            vector += token.vector
-    return vector
+    if vectors is None:
+        vector = numpy.zeros(300)
+        for sentence in block:
+            for token in sentence:
+                vector += token.vector
+        return vector
+    else:
+        vector = numpy.zeros(300)
+        for sentence in block:
+            for token in sentence:
+                vector += numpy.array(vectors.get(str(token), False))
+        return vector
 
 
 def tile(filename, options=options):
@@ -36,8 +45,8 @@ def tile(filename, options=options):
     similarity_scores = []
 
     for blockA, blockB in blocks:
-        vecA = _vectorize(blockA, options)
-        vecB = _vectorize(blockB, options)
+        vecA = _vectorize(blockA, options['vectors'])
+        vecB = _vectorize(blockB, options['vectors'])
         similarity_scores.append(cosine(vecA, vecB))
 
     if options['smoothing_window'] is None:
@@ -64,7 +73,9 @@ def tile(filename, options=options):
         out_list[0] = 1
         return out_list
 
-city = 'merida'
+city = 'chatham'
+
+#options['vectors'] = Vectors('vectors\GoogleNewsVecs.txt', False)
 
 segments = tile('data\\GUM_voyage_'+city+'_noheads.txt', options)
 print segments
