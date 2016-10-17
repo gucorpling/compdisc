@@ -7,16 +7,17 @@ import re
 def cb_finder(xrenner):
     '''
     :param xrenner: an analyzed xrenner object
-    :return: a list where each item corresponds to a sentence,
-    and is either a markable object representing the cb,
-    or a string explaining why no cb: either "no markables" or
-    "no markables coreferent with previous sentence"
+    :return: a list of lists where each inner list corresponds to a sentence,
+    and contains either:
+    -one of more markable object representing likely cbs,
+    -None if the sentence contains no markables
+    -False if there are markables but none a coreferent to previous sentence
     '''
     all_markables = xrenner.markables
 
     sent_count = xrenner.sent_num - 1
     marks_by_sent = [[] for sent in xrange(sent_count)]
-    cb_by_sent = ["none" for sent in xrange(sent_count)]
+    cb_by_sent = [[] for sent in xrange(sent_count)]
 
     for markable in all_markables:
         marks_by_sent[markable.sentence.sent_num - 1].append(markable)
@@ -31,20 +32,20 @@ def cb_finder(xrenner):
                         candidates.append(mark)
 
             if len(candidates) >= 1:  # multiple candidates, need to choose
-                #cb_by_sent[s] = candidates[0]  # baseline: take first in linear order
-
+                
                 # Rule 1
                 pron_candidates = filter(lambda m: m.form == "pronoun", candidates)
                 if len(pron_candidates) >= 1:
-                    cb_by_sent[s] = pron_candidates[0]
+                    cb_by_sent[s] = pron_candidates
                 else:
-                    cb_by_sent[s] = candidates[0]
+                    cb_by_sent[s] = candidates
             else:
-                cb_by_sent[s] = "no markables coreferent with previous sentence"
+                cb_by_sent[s] = [False]
         else:
-            cb_by_sent[s] = "no markables"
+            cb_by_sent[s] = [None]
 
     return cb_by_sent
+
 
 if __name__ == "__main__":
     # Part 1: Use spacy to get a dependency parse of the text
