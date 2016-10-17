@@ -9,7 +9,7 @@ def cb_finder(xrenner):
     :param xrenner: an analyzed xrenner object
     :return: a list of lists where each inner list corresponds to a sentence,
     and contains either:
-    -one of more markable object representing likely cbs,
+    -one or more markable object representing likely cbs
     -None if the sentence contains no markables
     -False if there are markables but none a coreferent to previous sentence
     '''
@@ -32,7 +32,7 @@ def cb_finder(xrenner):
                         candidates.append(mark)
 
             if len(candidates) >= 1:  # multiple candidates, need to choose
-                
+
                 # Rule 1
                 pron_candidates = filter(lambda m: m.form == "pronoun", candidates)
                 if len(pron_candidates) >= 1:
