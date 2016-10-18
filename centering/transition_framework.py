@@ -5,24 +5,43 @@ coherence evaluator
 import argparse
 import os
 import sys
-from spacy.en import English
 from depedit.depedit import DepEdit
 from xrenner.modules.xrenner_xrenner import Xrenner
 
-# Module imports
-from compdisc.cb_finder import cb_finder
+# Centering module imports
+from cb_finder import cb_finder
+from compdisc.vectors import Vectors
+# ToDo: Need bridging module
+# ToDo: Need cf module
 
 
 # ======================================================================================================================
 # Main
 # ======================================================================================================================
 def main(text):
+
+    # FORMAT
     parsed = parse(text)
-    bridged = bridging(parsed)
+
+    # BRIDGING
+    # ToDo: James, is there a reason the vector stuff isn't all just under the centering directory?
+    vectors = Vectors(optimize=False, filename="{}{}vectors{}GoogleNewsVecs.txt".format(
+        os.path.join(os.getcwd(), os.pardir), os.sep, os.sep))
+    bridged = bridging(parsed, vectors)
+
+    # CFS
     cfs = centered_f(bridged)
+
+    # CBS
     cbs = cb_finder(bridged)
+
+    # CLASSIFY
     transitions = classify_transitions(cfs, cbs)
+
+    # SCORE
     score = scoring(transitions)
+    print "COHERENCE: {}".format(score)
+
     return
 
 
@@ -38,6 +57,7 @@ def parse(text_file):
 
     elif text_file.endswith(".txt"):
         # Get parse from Spacy
+        from spacy.en import English
         parser = English(entity=False, load_vectors=False, vectors_package=False)
         parsed = parser(text)
 
@@ -51,7 +71,7 @@ def parse(text_file):
                 # skip if token is newline.
                 if token.orth_ == "\n":
                     continue
-                if token.head.i + 1 - prev_s_toks == token.i + 1 - prev_s_toks:  # Spacy represents root as self-dominance, revert to 0
+                if token.head.i + 1 - prev_s_toks == token.i + 1 - prev_s_toks:
                     head_id = 0
                 else:
                     head_id = token.head.i + 1 - prev_s_toks
@@ -74,49 +94,121 @@ def parse(text_file):
 
         # Run depedit
         edited = deped.run_depedit(parsed_string.split("\n"))
+
     else:
         sys.exit("Unknown input file type")
-    # Get and return Xrenner object
-    xobj = Xrenner(model=os.path.join(os.getcwd(), "eng.xrm"), override="GUM")
-    xobj.analyze(edited, "conll")
 
+    # Get and return Xrenner object
+    xobj = Xrenner(override="GUM")
+    xobj.analyze(edited, "conll")
     return xobj
 
 
 def centered_f(bridged):
-    #return list of ranked cfs for each sent in doc. structure should be a list of lists.
-    return bridged
+    # ToDO: Replace dummy function with Akitaka's cf module
+    fake_cfs = [["I", "experience"], ["i", "small-businessman"], ["he"], ["he", "fabrics", "tables", "paint"]]
+    return fake_cfs
 
-def bridging(parsed):
-    #return enriched xrenner obj
+
+def bridging(parsed, vectors):
+    # ToDo: replace dummy function with James' bridging module
     return parsed
 
+
+def get_antecedent(markable):
+    """
+    Recursively finds deepest antecedent of a given xrenner markable
+    :param markable: xrenner markable
+    :return: text representation of deepest antecedent
+    """
+    # if markable.antecedent is not 'none':
+    #    return get_antecedent(markable.antecedent)
+    # else:
+    #    return markable.text.lower()
+    while True:
+        if markable.antecedent is 'none':
+            return markable.text.lower()
+        else:
+            markable = markable.antecedent
+
+
 def classify_transitions(cfs, cbs):
-    assert(len(cfs) == len(cbs))
+    """
+    Classifies type (continue, retain, smooth shift, rough shift) and cost (cheap, expensive) of each sentence
+    transition in document
+    :param cfs: list containing ranked lists of markables
+    :param cbs: list containing lists of markables
+    :return: list of (type, cost) tuples
+    """
+    # ToDo: Add in logic to find best path in the case of cb ties
+    assert (len(cfs) == len(cbs))
 
     transitions = []
-    for i, cb in enumerate(cbs):
-        cp = cfs[i][0]
-        if i == 0:
-            continue
+    for i in xrange(1, len(cbs)):
 
-        if (cbs[i-1] is None) or (cbs[i] == cbs[i-1]):
-            if cbs[i] == cp:
+        # Assign cp/cb variables
+        cp_n = cfs[i][0].lower()
+        cp_prev = cfs[i - 1][0].lower()
+        cb_n = cbs[i][0] if not cbs[i][0] else get_antecedent(cbs[i][0])
+        cb_prev = cbs[i - 1][0] if not cbs[i - 1][0] else get_antecedent(cbs[i - 1][0])
+
+        # Classify transition type
+        if not cb_prev or (cb_n == cb_prev):
+            if cb_n == cp_n:
                 type = "continue"
             else:
                 type = "retain"
         else:
-            if cbs[i] == cp:
+            if cb_n == cp_n:
                 type = "smooth_shift"
             else:
                 type = "rough_shift"
 
-        transitions.append(type)
+        # Classify transition cost (according to Strube & Hahn 1999)
+        if cb_n == cp_prev:
+            cost = "cheap"
+        else:
+            cost = "expensive"
+
+        transitions.append((type, cost))
 
     return transitions
 
+
 def scoring(transitions):
-    return
+    """
+    Calculates composite coherence score of document based on transition types and costs
+    :param transitions: list of (type, cost) tuples
+    :return: float
+    """
+    type_vals = {
+        "continue": 3,
+        "retain": 2,
+        "smooth_shift": 1,
+        "rough_shift": 0,
+    }
+
+    cost_vals = {
+        'expensive': 0,
+        'cheap': 1
+    }
+
+    # Get scores for each transition in doc
+    type_score = sum([type_vals[trans[0]] for trans in transitions])
+    cost_score = sum([cost_vals[trans[1]] for trans in transitions])
+
+    # Normalize scores for each transition in doc
+    type_score_adjusted = float(type_score) / (type_vals["continue"] * len(transitions))
+    cost_score_adjusted = float(cost_score) / (cost_vals["cheap"] * len(transitions))
+
+    # Assign weights to transition types and costs
+    type_weight = 2
+    cost_weight = 1
+
+    # Combine weighted scores for transition type and cost to get total adjusted coherence score
+    total_adjusted = (type_weight*type_score_adjusted + cost_weight*cost_score_adjusted) / (type_weight + cost_weight)
+
+    return total_adjusted
 
 
 # ======================================================================================================================
