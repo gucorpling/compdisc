@@ -25,8 +25,7 @@ def main(text):
 
     # BRIDGING
     # ToDo: James, is there a reason the vector stuff isn't all just under the centering directory?
-    vectors = Vectors(optimize=False, filename="{}{}vectors{}GoogleNewsVecs.txt".format(
-        os.path.join(os.getcwd(), os.pardir), os.sep, os.sep))
+    vectors = Vectors(optimize=False, filename="../vectors/GoogleNewsVecs.txt")
     bridging(parsed, vectors)
 
     # CFS
