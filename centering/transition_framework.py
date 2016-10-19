@@ -5,13 +5,14 @@ coherence evaluator
 import argparse
 import os
 import sys
-from depedit.depedit import DepEdit
-from xrenner.modules.xrenner_xrenner import Xrenner
+from depedit import DepEdit
+from xrenner import Xrenner
 
 # Centering module imports
 from cb_finder import cb_finder
-from compdisc.vectors import Vectors
+from vectors import Vectors
 from bridging import bridging
+from helper import exec_via_temp, make_cf_input, make_cf_list
 # ToDo: Need cf module
 
 
@@ -24,7 +25,7 @@ def main(text):
     parsed = parse(text)
 
     # BRIDGING
-    vectors = Vectors(optimize=False, filename="../vectors/GoogleNewsVecs.txt")
+    vectors = Vectors(optimize=False, filename="GoogleNewsVecs.txt")
     bridging(parsed, vectors)
 
     # CFS
@@ -103,7 +104,13 @@ def parse(text_file):
 
 
 def centered_f(bridged):
-    # ToDO: Replace dummy function with Akitaka's cf module
+
+    cf_input = make_cf_input(bridged)
+    cf_command = ["Rscript",os.path.abspath("cf_building.R"),"tempfilename"]
+    cf_table = exec_via_temp(cf_input,cf_command,os.path.abspath("."))
+    predicted_cfs = make_cf_list(cf_table)
+
+    # ToDO: Replace dummy fake_cfs with Akitaka's predicted_cfs
     fake_cfs = [["I", "experience"], ["i", "small-businessman"], ["he"], ["he", "fabrics", "tables", "paint"]]
     return fake_cfs
 

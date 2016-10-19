@@ -1,6 +1,6 @@
 import numpy
-from xrenner.modules.xrenner_xrenner import Xrenner
-from compdisc.vectors import Vectors
+from xrenner import Xrenner
+from vectors import Vectors
 
 def bridging(xrenner, vectors, type='conservative'):
     """
