@@ -24,7 +24,6 @@ def main(text):
     parsed = parse(text)
 
     # BRIDGING
-    # ToDo: James, is there a reason the vector stuff isn't all just under the centering directory?
     vectors = Vectors(optimize=False, filename="../vectors/GoogleNewsVecs.txt")
     bridging(parsed, vectors)
 
