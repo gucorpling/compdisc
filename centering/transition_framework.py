@@ -11,7 +11,7 @@ from xrenner.modules.xrenner_xrenner import Xrenner
 # Centering module imports
 from cb_finder import cb_finder
 from compdisc.vectors import Vectors
-# ToDo: Need bridging module
+from bridging import bridging
 # ToDo: Need cf module
 
 
@@ -27,13 +27,13 @@ def main(text):
     # ToDo: James, is there a reason the vector stuff isn't all just under the centering directory?
     vectors = Vectors(optimize=False, filename="{}{}vectors{}GoogleNewsVecs.txt".format(
         os.path.join(os.getcwd(), os.pardir), os.sep, os.sep))
-    bridged = bridging(parsed, vectors)
+    bridging(parsed, vectors)
 
     # CFS
-    cfs = centered_f(bridged)
+    cfs = centered_f(parsed)
 
     # CBS
-    cbs = cb_finder(bridged)
+    cbs = cb_finder(parsed)
 
     # CLASSIFY
     transitions = classify_transitions(cfs, cbs)
@@ -108,11 +108,6 @@ def centered_f(bridged):
     # ToDO: Replace dummy function with Akitaka's cf module
     fake_cfs = [["I", "experience"], ["i", "small-businessman"], ["he"], ["he", "fabrics", "tables", "paint"]]
     return fake_cfs
-
-
-def bridging(parsed, vectors):
-    # ToDo: replace dummy function with James' bridging module
-    return parsed
 
 
 def get_antecedent(markable):
