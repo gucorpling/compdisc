@@ -12,7 +12,7 @@ class Vectors:
         self.ball_tree = None
         if filename:
             with open(filename) as infile:
-                print('Reading file...')
+                print('Reading vectors...')
                 index = 0
                 for line in infile:
                     line = line.split()
@@ -50,14 +50,16 @@ class Vectors:
         with open(filename, 'rb') as infile:
             self.word_index, self.vectors, self.words, self.ball_tree = cPickle.load(infile)
 
-    def get(self, item, errors=True):
-        try:
-            return self.vectors[self.word_index[item]]
-        except Exception as e:
-            if errors:
-                raise e
-            else:
-                return [0]*len(self.vectors[0])
+    def get(self, string, errors=True):
+        # type: (str, bool) -> list
+        return_vec = [0]*len(self.vectors[0])
+        for word in string.split():
+            try:
+                return_vec = numpy.add(self.vectors[self.word_index[word]],return_vec)
+            except Exception as e:
+                if errors:
+                    raise e
+        return return_vec
 
     def search(self, vector, k=1, return_distance=False):
         if self.ball_tree:
@@ -72,3 +74,10 @@ class Vectors:
             return tuple(((self.words[ind[i]], dist[i]) for i in xrange(len(ind))))
         else:
             return tuple(self.words[ind[i]] for i in xrange(len(ind)))
+
+    def distance(self, item1, item2, errors=True):
+        if isinstance(item1, str):
+            item1 = self.get(item1, errors=errors)
+        if isinstance(item2, str):
+            item2 = self.get(item2, errors=errors)
+        return cosine(item1, item2)
