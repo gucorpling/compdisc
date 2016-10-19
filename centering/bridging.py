@@ -1,12 +1,6 @@
 import numpy
 from xrenner.modules.xrenner_xrenner import Xrenner
-from vectors import Vectors
-
-xrenner = Xrenner(override='GUM')
-xrenner.analyze('clinton_example.conll10', 'conll')
-
-vecs = Vectors('../vectors/GoogleNewsVecs.txt', False)
-
+from compdisc.vectors import Vectors
 
 def bridging(xrenner, vectors, type='conservative'):
     """
@@ -48,8 +42,14 @@ def bridging(xrenner, vectors, type='conservative'):
 
     return None
 
+if __name__ == "__main__":
 
-bridging(xrenner, vecs)
+    xrenner = Xrenner(override='GUM')
+    xrenner.analyze('clinton_example.conll10', 'conll')
 
-for markable in xrenner.markables:
-    print(markable.text, markable.antecedent, markable.coref_type)
+    vecs = Vectors('../vectors/GoogleNewsVecs.txt', False)
+
+    bridging(xrenner, vecs)
+
+    for markable in xrenner.markables:
+        print(markable.text, markable.antecedent, markable.coref_type)
