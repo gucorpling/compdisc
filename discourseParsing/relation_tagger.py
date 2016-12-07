@@ -2,7 +2,7 @@
 tagger.py
 
 input: two conll10 files -- one training file, one test file w/gold relation labels
-output: conll10 test file with predicted relations in 4th column
+output: conll10 test file with predicted relations in 4th column (named "relation_tagger_output.txt" by default)
 
 usage: python tagger.py -t <training file> -g <test file w/gold relation labels> [-e <# of evaluation iterations>]
 Note: Use optional param -e <number> to evaluate & print avg accuracy over the specified number of testing iterations
@@ -536,7 +536,7 @@ def format_output(parsed_gold, predictions, label_dict):
 
 
 def write_out(output_lines):
-    with open("tagging_output.txt", "wb") as f:
+    with open("relation_tagger_output.txt", "wb") as f:
         for line in output_lines:
             f.write(line + "\n")
 
