@@ -12,7 +12,7 @@ class Vectors:
         self.words = []
         self.ball_tree = None
         if filename:
-            with open(filename) as infile:
+            with open(filename, encoding='utf-8') as infile:
                 print('Reading vectors...')
                 index = 0
                 for line in infile:
@@ -107,7 +107,8 @@ class RelationLabeler:
                           'solutionhood_r',
                           'contrast_m',
                           'sequence_m',
-                          'justify_r']
+                          'justify_r',
+                          'ROOT']
 
         self.vectors = Vectors(vector_file, False)
         self.classifier = LinearSVC()
@@ -121,14 +122,20 @@ class RelationLabeler:
         self.classifier.fit(X, Y)
 
     def test(self, filename):
+        correct, incorrect = 0, 0
         for example, label in self.get_data(filename):
-            print(self.classifier.predict(example), label)
+            prediction = self.classifier.predict(example)
+            if prediction == label:
+                correct += 1
+            else:
+                incorrect += 1
+            #print(self.classifier.predict(example), label)
+        print('accuracy: ', correct/(correct+incorrect))
 
     def get_data(self, filename):
         for tree in self.rst_loader(filename):
             for i in range(len(tree)):
                 current_line = tree[i+1]
-                print(current_line)
                 if int(current_line[5]) not in tree:
                     continue
                 parent = tree[int(current_line[5])]
@@ -204,9 +211,9 @@ class RelationLabeler:
                     word = word[1]
                     if word[6] == 'root':
                         current_root = word[1]
-                    elif word[6] == 'nsubj' and current_line[8][int(word[5])][6] == 'root':
+                    elif word[6] == 'nsubj' and current_subj is None:
                         current_subj = word[1]
-                    elif word[6] == 'dobj' and current_line[8][int(word[5])][6] == 'root':
+                    elif word[6] == 'dobj' and current_obj is None:
                         current_obj = word[1]
                     current_sent += word[1] + ' '
 
@@ -216,9 +223,9 @@ class RelationLabeler:
                     word = word[1]
                     if word[6] == 'root':
                         parent_root = word[1]
-                    elif word[6] == 'nsubj' and parent[8][int(word[5])][6] == 'root':
+                    elif word[6] == 'nsubj' and parent_subj is None:
                         parent_subj = word[1]
-                    elif word[6] == 'dobj' and parent[8][int(word[5])][6] == 'root':
+                    elif word[6] == 'dobj' and parent_obj is None:
                         parent_obj = word[1]
                     parent_sent += word[1]+' '
 
@@ -245,23 +252,24 @@ class RelationLabeler:
                         example.append(1)
                 else:
                     example.append(1)
-
-                example.append(self.vectors.distance(parent_sent, current_sent, False))
+                try:
+                    example.append(self.vectors.distance(parent_sent, current_sent))
+                except Exception:
+                    example.append(1)
 
                 yield example, self.relations.index(current_line[6])
 
     @staticmethod
     def rst_loader(filename):
-        with open(filename) as infile:
+        with open(filename, encoding='utf-8') as infile:
             data = {}
             for line in infile:
-                if len== '\n':
+                if line== '\n':
                     return_data = data
                     data = {}
                     yield return_data
                 else:
                     line = line.split()
-                    print(line)
                     parse = {}
                     parse_section = line[9].split('///')
                     for entry in parse_section:
@@ -274,3 +282,4 @@ class RelationLabeler:
 
 rl = RelationLabeler('../vectors/GoogleNewsVecs.txt')
 rl.train('rst_train.rsd')
+rl.test('rst_test.rsd')
